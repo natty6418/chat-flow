@@ -37,7 +37,7 @@ Before running this application, make sure you have:
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/natty6418/chat-flow.git
    cd real_time_chat
    ```
 
