@@ -27,7 +27,7 @@ export function ConfirmationForm({ username, onSuccess, onBackToSignIn }: Confir
       await confirmSignUp(username, confirmationCode.trim());
       onSuccess();
     } catch (error) {
-      // Error handled by useAuth
+      console.log('Confirmation error:', error);
     }
   };
 
@@ -39,8 +39,13 @@ export function ConfirmationForm({ username, onSuccess, onBackToSignIn }: Confir
       await resendCode(username);
       setResendSuccess(true);
       setTimeout(() => setResendSuccess(false), 3000);
-    } catch (error) {
-      // Error handled by useAuth
+    } catch (error: unknown) {
+      console.log('Resend code error:', error);
+      if (error instanceof Error) {
+        console.error('Error resending code:', error.message);
+      } else {
+        console.error('An unknown error occurred while resending the code');
+      }
     } finally {
       setResendLoading(false);
     }

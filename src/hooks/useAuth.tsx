@@ -3,7 +3,8 @@ import { authService, User } from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
+  loading: boolean; // For initial auth check
+  actionLoading: boolean; // For sign-in/sign-up actions
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, username?: string) => Promise<void>;
   confirmSignUp: (username: string, code: string) => Promise<void>;
@@ -18,7 +19,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Initial auth check loading
+  const [actionLoading, setActionLoading] = useState(false); // For UI actions
   const [error, setError] = useState<string | null>(null);
   const [idToken, setIdToken] = useState<string | null>(null);
 
@@ -45,41 +47,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setError(null);
-      setLoading(true);
+      setActionLoading(true);
       const result = await authService.signIn(email, password);
       setUser(result.user);
       setIdToken(result.idToken)
-    } catch (error: any) {
-      setError(error?.message || 'Sign in failed');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown sign-in error occurred');
+      }
       throw error;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, username?: string) => {
     try {
       setError(null);
-      setLoading(true);
+      setActionLoading(true);
+      
+      // Uncomment this line when you want to use real API again:
       await authService.signUp(email, password, username);
-    } catch (error: any) {
-      setError(error.message || 'Sign up failed');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown sign-up error occurred');
+      }
       throw error;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
 
   const confirmSignUp = async (username: string, code: string) => {
     try {
       setError(null);
-      setLoading(true);
+      setActionLoading(true);
+      
+      // Accept any 6-digit code for testing
+      if (code.length !== 6) {
+        throw new Error('Please enter a 6-digit confirmation code');
+      }
+      
+      // Uncomment this line when you want to use real API again:
       await authService.confirmSignUp(username, code);
-    } catch (error: any) {
-      setError(error.message || 'Confirmation failed');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown confirmation error occurred');
+      }
       throw error;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
 
@@ -87,22 +110,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       await authService.resendConfirmationCode(username);
-    } catch (error: any) {
-      setError(error.message || 'Failed to resend code');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred while resending the code');
+      }
       throw error;
     }
   };
 
   const signOut = async () => {
     try {
-      setLoading(true);
+      setActionLoading(true);
       await authService.signOut();
       setUser(null);
       setIdToken(null);
-    } catch (error: any) {
-      setError(error.message || 'Sign out failed');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown sign-out error occurred');
+      }
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
 
@@ -111,6 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     loading,
+    actionLoading,
     signIn,
     signUp,
     confirmSignUp,

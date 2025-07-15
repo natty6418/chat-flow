@@ -5,11 +5,8 @@ import { AuthFlow } from './components/auth/AuthFlow';
 import { ChatApp } from './components/chat/ChatApp';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { setContext } from '@apollo/client/link/context';
-import { ApolloClient, InMemoryCache, HttpLink, split, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink, ApolloProvider } from '@apollo/client';
 import awsConfig from './config/aws-config';
-import { getMainDefinition } from '@apollo/client/utilities';
-// import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-// import { createClient } from 'graphql-ws';
 
 
 // --- Helper Components for Routing (No changes needed here) ---
@@ -68,30 +65,8 @@ function ApolloClientProvider({ children }: { children: React.ReactNode }) {
     }));
 
     const httpAuthLink = authLink.concat(httpLink);
-    let link = httpAuthLink;
-
-    // if (idToken) {
-    //   const wsLink = new AppSyncWebSocketLink({
-    //     url: awsConfig.API.GraphQL.realTime.subscriptionEndpoint,
-    //     getIdToken: () => idToken
-    //   });
-
-
-    //   link = split(
-    //     ({ query }) => {
-    //       const definition = getMainDefinition(query);
-    //       return (
-    //         definition.kind === 'OperationDefinition' &&
-    //         definition.operation === 'subscription'
-    //       );
-    //     },
-    //     wsLink,
-    //     httpAuthLink
-    //   );
-    // }
-
     return new ApolloClient({
-      link,
+      link: httpAuthLink,
       cache: new InMemoryCache()
     });
   }, [idToken]);

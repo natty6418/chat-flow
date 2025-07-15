@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthLayout } from './AuthLayout';
 import { SignInForm } from './SignInForm';
 import { SignUpForm } from './SignUpForm';
@@ -9,6 +9,11 @@ type AuthMode = 'signin' | 'signup' | 'confirm';
 export function AuthFlow() {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [pendingUsername, setPendingUsername] = useState('');
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('AuthFlow state updated - mode:', mode, 'pendingUsername:', pendingUsername);
+  }, [mode, pendingUsername]);
 
   const getLayoutProps = () => {
     switch (mode) {
@@ -36,8 +41,21 @@ export function AuthFlow() {
   };
 
   const handleSignUpSuccess = (username: string) => {
-    setPendingUsername(username);
-    setMode('confirm');
+    console.log('AuthFlow: handleSignUpSuccess called with username:', username);
+    console.log('Current mode before update:', mode);
+    
+    // Use functional updates to ensure we get the latest state
+    setPendingUsername(() => {
+      console.log('Setting pending username to:', username);
+      return username;
+    });
+    
+    setMode((currentMode) => {
+      console.log('Changing mode from:', currentMode, 'to: confirm');
+      return 'confirm';
+    });
+    
+    console.log('State update functions called');
   };
 
   const handleConfirmationSuccess = () => {
@@ -47,6 +65,7 @@ export function AuthFlow() {
   };
 
   const renderForm = () => {
+    console.log('Rendering form for mode:', mode);
     switch (mode) {
       case 'signin':
         return (
@@ -63,6 +82,7 @@ export function AuthFlow() {
           />
         );
       case 'confirm':
+        console.log('Rendering ConfirmationForm with username:', pendingUsername);
         return (
           <ConfirmationForm
             username={pendingUsername}

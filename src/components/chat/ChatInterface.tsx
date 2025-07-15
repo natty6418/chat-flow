@@ -28,21 +28,26 @@ export function ChatInterface({ room, onBackToRooms }: ChatInterfaceProps) {
   const { user, idToken } = useAuth();
   const navigate = useNavigate();
 
+  // Handle navigation if room or user is missing
+  useEffect(() => {
+    if (!room || !user) {
+      navigate("/", { replace: true });
+    }
+  }, [room, user, navigate]);
+
   // Move these hook declarations up BEFORE any useEffect that references them
   const { loading: queryLoading, data: queryData } = useQuery<{
     getMessagesForRoom: Message[];
   }>(getMessagesForRoom, {
-    variables: { roomId: room.id },
+    variables: { roomId: room?.id },
+    skip: !room,
   });
 
   const [
     createMessageMutation,
     { loading: createMessageLoading, error: createMessageError },
   ] = useMutation(createMessage, {
-    variables: {
-      roomId: room.id,
-      body: newMessage,
-    },
+    // We will provide variables when calling the mutation
     onCompleted: () => {
       // const message: Message = {
       //   id: Date.now().toString(),
@@ -61,13 +66,9 @@ export function ChatInterface({ room, onBackToRooms }: ChatInterfaceProps) {
     },
   });
 
-  if (!room || !user) {
-    return navigate("/", { replace: true });
-  }
-
   // Replace useSubscription with direct WebSocket connection
   useEffect(() => {
-    // ...existing code...
+    if (!room || !idToken) return;
     const setupWebSocket = async () => {
       try {
         // Close existing socket if any
@@ -139,8 +140,13 @@ export function ChatInterface({ room, onBackToRooms }: ChatInterfaceProps) {
           socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "error") {
-              data.payload.errors.forEach((err: any) => {
-                console.error("WebSocket error:", err.message);
+              data.payload.errors.forEach((err: unknown) => {
+                if (err instanceof Error) {
+                  console.error("WebSocket error:", err.message);
+                } else {
+                  console.error("WebSocket error:", JSON.stringify(err));
+                }
+               
               });
             }
 
@@ -208,7 +214,7 @@ export function ChatInterface({ room, onBackToRooms }: ChatInterfaceProps) {
         socketRef.current.close();
       }
     };
-  }, [room.id, idToken]);
+  }, [room, idToken]);
 
   useEffect(() => {
     scrollToBottom();
@@ -236,7 +242,7 @@ export function ChatInterface({ room, onBackToRooms }: ChatInterfaceProps) {
   }, [queryLoading, queryData]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !user) return;
+    if (!newMessage.trim() || !user || !room) return;
 
     setSending(true);
 
@@ -269,6 +275,11 @@ export function ChatInterface({ room, onBackToRooms }: ChatInterfaceProps) {
   const isOwnMessage = (message: Message) => {
     return user && message.from === user.username;
   };
+
+  // Render null if we are redirecting
+  if (!room || !user) {
+    return null;
+  }
 
   return (
     <div className="flex-1 flex flex-col w-1/2 m-auto rounded-md shadow-black">

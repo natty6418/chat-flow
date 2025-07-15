@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useAuth } from '../../hooks/useAuth';
-import { validatePassword } from '../../utils/crypto';
 
 interface SignInFormProps {
   onSwitchToSignUp: () => void;
@@ -24,8 +23,13 @@ export function SignInForm({ onSwitchToSignUp, onNeedConfirmation }: SignInFormP
 
     try {
       await signIn(email.trim(), password);
-    } catch (error: any) {
-      if (error.code === 'UserNotConfirmedException') {
+    } catch (error: unknown) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code: string }).code === 'UserNotConfirmedException'
+      ) {
         onNeedConfirmation(email.trim());
       }
     }

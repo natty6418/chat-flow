@@ -15,7 +15,7 @@ export function SignUpForm({ onSwitchToSignIn, onSuccess }: SignUpFormProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { signUp, loading, error, clearError } = useAuth();
+  const { signUp, actionLoading, error, clearError } = useAuth();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -59,9 +59,12 @@ export function SignUpForm({ onSwitchToSignIn, onSuccess }: SignUpFormProps) {
     }
 
     try {
+      console.log('Starting signup process...');
       await signUp(email.trim(), password, username.trim());
+      console.log('Signup successful, calling onSuccess...');
       onSuccess(username.trim());
     } catch (error) {
+      console.error('Signup error:', error);
       // Error handled by useAuth
     }
   };
@@ -130,7 +133,7 @@ export function SignUpForm({ onSwitchToSignIn, onSuccess }: SignUpFormProps) {
 
       <Button
         type="submit"
-        loading={loading}
+        loading={actionLoading}
         className="w-full"
         size="lg"
       >
