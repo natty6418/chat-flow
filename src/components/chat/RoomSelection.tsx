@@ -1,68 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Hash, Calendar } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Hash, Calendar, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import Room from '../../types/room';
 import { useQuery, useMutation } from '@apollo/client';
-import { queries } from '../../services/graphql'
-import { mutations } from '../../services/graphql'
-
+import { queries, mutations } from '../../services/graphql';
 
 interface RoomSelectionProps {
   onJoinRoom: (room: Room) => void;
 }
 
 export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errors, setErrors] = useState<string[]>([]);
+  // --- State for UI interactions ---
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
-  const [createLoading, setCreateLoading] = useState(false);
 
-  const { loading: queryLoading, error: queryError, data: queryData } = useQuery<{ listRooms: Room[] }>(queries.listRooms);
-  const [createRoomMutation, { loading: createRoomLoading, error: createRoomError, data: createRoomData }] = useMutation(mutations.createRoom);
+  // --- GraphQL Hooks ---
 
-  useEffect(() => {
-    setIsLoading(queryLoading);
-    setErrors([]);
-    if (queryError) {
-      setIsLoading(false);
-      setErrors([queryError.message]);
-    } else if (queryData && queryData.listRooms) {
-      setRooms(queryData.listRooms);
-      setIsLoading(false);
+  // 1. Fetch the list of rooms.
+  // We will use queryLoading, queryError, and queryData directly in our JSX.
+  const { 
+    loading: queryLoading, 
+    error: queryError, 
+    data: queryData 
+  } = useQuery<{ listRooms: Room[] }>(queries.listRooms);
+
+  // 2. Define the mutation to create a new room.
+  const [createRoomMutation, { loading: createRoomLoading, error: createRoomError }] = useMutation(mutations.createRoom, {
+    // This function runs on a successful mutation
+    onCompleted: (data) => {
+      console.log('New room created:', data.createRoom);
+      const newRoom = data.createRoom;
+      setNewRoomName('');      // Reset input
+      setShowCreateModal(false); // Close modal
+      onJoinRoom(newRoom);     // Join the new room
+    },
+    // This function updates the Apollo Cache, ensuring the UI updates everywhere
+    update: (cache, { data: { createRoom } }) => {
+      const existingData = cache.readQuery<{ listRooms: Room[] }>({ query: queries.listRooms });
+      if (existingData && createRoom) {
+        cache.writeQuery({
+          query: queries.listRooms,
+          data: {
+            listRooms: [...existingData.listRooms, createRoom],
+          },
+        });
+      }
+    },
+    // Handles errors specifically from this mutation
+    onError: (error) => {
+      console.error('Error creating room:', error);
+      // You could trigger a toast notification here
     }
-  }, [queryLoading, queryError, queryData])
+  });
 
-  useEffect(() => {
-    setCreateLoading(createRoomLoading);
-    if (createRoomError) {
-      setCreateLoading(false);
-      setErrors(prev => [...prev, createRoomError.message]);
-    } else if (createRoomData && createRoomData.createRoom) {
-      console.log('New room created:', createRoomData.createRoom);
-      const newRoom = createRoomData.createRoom;
-      setRooms(prev => [...prev, newRoom]);
-      setNewRoomName('');
-      setShowCreateModal(false);
-      setCreateLoading(false);
-      onJoinRoom(newRoom);
-    }
-  }, [createRoomData, createRoomError, createRoomLoading]);
+  // --- Event Handlers ---
 
-
-
-  const createRoom = async () => {
+  // Simplified createRoom function
+  const createRoom = () => {
     if (!newRoomName.trim()) return;
-
-    setCreateLoading(true);
     createRoomMutation({
-      variables: { name: newRoomName.trim() }
-    })
-
-
+      variables: { name: newRoomName.trim() },
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -71,7 +71,10 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
     }
   };
 
-  if (isLoading) {
+  // --- Render Logic ---
+
+  // Loading state for the initial room list
+  if (queryLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
@@ -82,16 +85,20 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
     );
   }
 
-  if (errors.length > 0) {
+  // Error state for the initial room list
+  if (queryError) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
+      <div className="flex-1 flex items-center justify-center text-center p-4">
+        <div>
           <h3 className="text-xl font-semibold text-red-600 mb-2">Error loading workspaces</h3>
-          <p className="text-gray-600">{errors.join(', ')}</p>
+          <p className="text-gray-600 bg-red-50 p-3 rounded-md">{queryError.message}</p>
         </div>
       </div>
     );
   }
+
+  // Use queryData directly, providing a fallback empty array
+  const rooms = queryData?.listRooms || [];
 
   return (
     <div className="flex-1 p-8">
@@ -117,10 +124,6 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No workspaces yet</h3>
             <p className="text-gray-600 mb-6">Create your first workspace to get started!</p>
-            <Button onClick={() => setShowCreateModal(true)}>
-              <Plus className="w-5 h-5" />
-              Create Your First Workspace
-            </Button>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -153,7 +156,10 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
         {/* Create Room Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl relative">
+              <Button variant="outline" size="sm" className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={() => setShowCreateModal(false)}>
+                <X className="w-5 h-5"/>
+              </Button>
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Create New Workspace</h3>
 
               <Input
@@ -165,20 +171,14 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
                 maxLength={50}
                 autoFocus
               />
+              
+              {createRoomError && <p className="text-red-500 text-sm mt-2">{createRoomError.message}</p>}
 
               <div className="flex space-x-3 mt-6">
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowCreateModal(false)}
-                  className="flex-1"
-                >
+                <Button variant="secondary" onClick={() => setShowCreateModal(false)} className="flex-1">
                   Cancel
                 </Button>
-                <Button
-                  onClick={createRoom}
-                  loading={createLoading}
-                  className="flex-1"
-                >
+                <Button onClick={createRoom} loading={createRoomLoading} className="flex-1">
                   Create Workspace
                 </Button>
               </div>
