@@ -58,34 +58,34 @@
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/natty6418/chat-flow.git
-   cd real_time_chat
-   ```
+	```bash
+	git clone https://github.com/natty6418/chat-flow.git
+	cd real_time_chat
+	```
 
 2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+	```bash
+	npm install
+	```
 
 3. **Configure environment**
-   ```bash
-   # Copy example env file
-   cp .env.example .env
+	```bash
+	# Copy example env file
+	cp .env.example .env
 
-   # Edit .env with your AWS configuration
-   nano .env
-   ```
+	# Edit .env with your AWS configuration
+	nano .env
+	```
 
 4. **Start development server**
-   ```bash
-   npm run dev
-   ```
+	```bash
+	npm run dev
+	```
 
 5. **Open your browser**
-   ```
-   http://localhost:5173
-   ```
+	```
+	http://localhost:5173
+	```
 
 ## ⚙️ Configuration
 
@@ -201,15 +201,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-<div align="center">
-  <p>Made with ❤️ by the ChatFlow team</p>
-  <p>
-    <a href="https://github.com/natty6418/chat-flow">⭐ Star this repo</a> •
-    <a href="https://github.com/natty6418/chat-flow/issues">🐛 Report Bug</a> •
-    <a href="https://github.com/natty6418/chat-flow/issues">✨ Request Feature</a>
-  </p>
-</div>
-
 ## 🔌 WebSocket Implementation
 
 The application uses a custom WebSocket implementation for AWS AppSync:
@@ -239,12 +230,6 @@ npm run build
 npm run preview
 ```
 
-### Environment Setup for Different Stages
-- Create separate `.env.development`, `.env.staging`, and `.env.production` files
-- Configure different AWS resources (AppSync, Cognito, DynamoDB) for each environment
-- Ensure proper CORS settings in AppSync for your domain
-- Set up DynamoDB tables with appropriate read/write capacity for each environment
-
 ## 📝 Available Scripts
 
 - `npm run dev` - Start development server
@@ -259,45 +244,6 @@ npm run preview
 - WebSocket connections use authentication headers
 - Input validation on both client and server sides
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-1. **WebSocket Connection Fails**
-   - Verify your AppSync real-time endpoint URL
-   - Check authentication token validity
-   - Ensure proper CORS configuration in AppSync
-
-2. **Authentication Errors**
-   - Verify Cognito User Pool configuration
-   - Check client ID and secret values
-   - Ensure proper redirect URLs are configured
-
-3. **Database Connection Issues**
-   - Verify DynamoDB table configurations
-   - Check IAM permissions for AppSync to access DynamoDB
-   - Ensure proper table names and schema match your GraphQL schema
-
-4. **Build Errors**
-   - Verify all environment variables are set
-   - Check TypeScript type definitions
-   - Ensure all dependencies are installed
-
-### Getting Help
-
-- Check the browser console for error messages
-- Verify AWS service configurations in the AWS Console
-- Ensure all environment variables are properly set with `VITE_` prefix
 
 ## 🔗 Useful Links
 
