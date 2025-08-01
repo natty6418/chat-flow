@@ -162,37 +162,19 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
     });
   };
 
-  // const deleteRoom = (roomId: string, roomName: string, event: React.MouseEvent) => {
-  //   event.stopPropagation(); // Prevent triggering the room join
-    
-  //   if (confirm(`Are you sure you want to delete "${roomName}"? This action cannot be undone.`)) {
-  //     deleteRoomMutation({
-  //       variables: {
-  //         input: { 
-  //           id: roomId 
-  //         },
-  //       },
-  //     });
-  //   }
-  // };
-
   const deleteRoom = (roomId: string, roomName: string, event: React.MouseEvent) => {
-  event.stopPropagation(); // Prevent triggering the room join
+    event.stopPropagation(); // Prevent triggering the room join
+    
+    if (confirm(`Are you sure you want to delete "${roomName}"? This action cannot be undone.`)) {
+      deleteRoomMutation({
+        variables: {
+            id: roomId 
+        },
+      });
+    }
+  };
 
-  // Temporarily remove the confirmation for testing.
-  // In a real app, you would trigger a custom confirmation modal here.
-  console.log(`Attempting to delete room: ${roomId}`);
 
- deleteRoomMutation({
-    variables: {
-        id: roomId 
-    },
-  }).catch(error => {
-    // Add this .catch() block for extra logging
-    console.error("Caught error directly on mutation call:", error);
-    alert("Failed to delete room (see console for details).");
-  }); 
-};
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
