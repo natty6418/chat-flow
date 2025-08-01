@@ -1,0 +1,53 @@
+type Room
+	@model
+	@auth(rules: [
+		# Rule 1: The user who created the room (owner) has full control.
+		{ allow: owner },
+		
+		# Rule 2: Users whose IDs are in the 'members' field can read the room.
+		{ allow: owner, ownerField: "members", operations: [read] }
+	])
+{
+	id: ID!
+	name: String!
+	roomType: String! # "public" or "private"
+	members: [String]
+	messages: [Message] @hasMany(indexName: "byRoom", fields: ["id"])
+}
+
+type Message
+	@model(mutations: { create: null })
+	@auth(rules: [
+		{ allow: owner },
+		{ allow: owner, ownerField: "roomMembers", operations: [create, read] }
+	])
+{
+	id: ID!
+	body: String!
+	createdAt: AWSDateTime!
+	roomId: ID! @index(name: "byRoom", sortKeyFields: ["createdAt"])
+	roomMembers: [String]
+}
+
+type Mutation {
+	# This custom mutation is now essential for joining rooms.
+	joinRoom(roomId: ID!): Room @function(name: "joinRoomLambda-${env}")
+	createMessage(body: String!, roomId: ID!): Message @function(name: "createMessage-${env}")
+
+}
+type Subscription {
+  onCreateMessage: Message
+    @aws_subscribe(mutations: ["createMessage"])
+}
+
+type UserDetail {
+  userId: ID!
+  preferredUsername: String
+}
+
+# Update the Query type to include our new custom query.
+type Query {
+  # This new query will be handled by a Lambda function.
+  getRoomMembersDetails(roomId: ID!): [UserDetail]
+    @function(name: "getRoomMembersDetailsLambda-${env}")
+}

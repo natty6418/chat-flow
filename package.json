@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
-    "aws-amplify": "^6.15.3",
+    "aws-amplify": "^6.15.4",
     "aws-sdk": "^2.1691.0",
     "graphql": "^16.11.0",
     "graphql-tag": "^2.12.6",

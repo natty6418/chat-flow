@@ -1,11 +1,72 @@
 import React, { useState } from 'react';
-import { Plus, Hash, Calendar, X } from 'lucide-react';
+import { useQuery,  useMutation, gql } from '@apollo/client';
+
+import { Plus, Link, Hash, Calendar, X, Lock, Globe, Sparkles, Users, MessageSquare } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
-import Room from '../../types/room';
-import { useQuery, useMutation } from '@apollo/client';
-import { queries, mutations } from '../../services/graphql';
+import { Room } from '../../services/api';
+import * as queries from '../../graphql/queries';
+import * as mutations from '../../graphql/mutations';
+
+// New modal for joining public rooms by ID
+function JoinRoomByIdModal({ onJoinRoom, onClose }: { onJoinRoom: (room: Room) => void; onClose: () => void }) {
+  const [roomId, setRoomId] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [joinRoomMutation, { loading }] = useMutation(gql(mutations.joinRoom), {
+    onCompleted: (data) => {
+      const updatedRoom = data.joinRoom;
+      if (updatedRoom) {
+        onJoinRoom(updatedRoom);
+        onClose();
+      } else {
+        setErrorMessage("Failed to join the room. It may not exist or is not public.");
+      }
+    },
+    onError: (error) => {
+      console.error("Error joining room:", error);
+      setErrorMessage(error.message);
+    },
+  });
+
+  const handleJoin = () => {
+    if (!roomId.trim()) {
+      setErrorMessage("Please enter a Room ID.");
+      return;
+    }
+    setErrorMessage('');
+    joinRoomMutation({
+      variables: {
+        roomId: roomId.trim(),
+      },
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+        <h3 className="text-2xl font-bold text-gray-900 mb-6">Join Public Rooms</h3>
+        <Input
+          label="Room ID"
+          placeholder="Enter the public room ID"
+          value={roomId}
+          onChange={(e) => setRoomId(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleJoin()}
+          autoFocus
+        />
+        {errorMessage && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>}
+        <div className="flex space-x-3 mt-6">
+          <Button variant="secondary" onClick={onClose} className="flex-1" disabled={loading}>
+            Cancel
+          </Button>
+          <Button onClick={handleJoin} loading={loading} className="flex-1">
+            Join Room
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface RoomSelectionProps {
   onJoinRoom: (room: Room) => void;
@@ -14,54 +75,42 @@ interface RoomSelectionProps {
 export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
   // --- State for UI interactions ---
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showJoinByIdModal, setShowJoinByIdModal] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
+  const [newRoomType, setNewRoomType] = useState<'public' | 'private'>('public');
 
-  // --- GraphQL Hooks ---
-
-  // 1. Fetch the list of rooms.
-  // We will use queryLoading, queryError, and queryData directly in our JSX.
-  const { 
-    loading: queryLoading, 
-    error: queryError, 
-    data: queryData 
-  } = useQuery<{ listRooms: Room[] }>(queries.listRooms);
-
-  // 2. Define the mutation to create a new room.
-  const [createRoomMutation, { loading: createRoomLoading, error: createRoomError }] = useMutation(mutations.createRoom, {
-    // This function runs on a successful mutation
+  const { loading: queryLoading, error: queryError, data: queryData } = useQuery(gql(queries.listRooms));
+  const [createRoomMutation, { loading: createRoomLoading, error: createRoomError }] = useMutation(gql(mutations.createRoom), {
     onCompleted: (data) => {
-      console.log('New room created:', data.createRoom);
       const newRoom = data.createRoom;
-      setNewRoomName('');      // Reset input
-      setShowCreateModal(false); // Close modal
-      onJoinRoom(newRoom);     // Join the new room
+      setNewRoomName('');
+      setShowCreateModal(false);
+      onJoinRoom(newRoom);
     },
-    // This function updates the Apollo Cache, ensuring the UI updates everywhere
     update: (cache, { data: { createRoom } }) => {
-      const existingData = cache.readQuery<{ listRooms: Room[] }>({ query: queries.listRooms });
-      if (existingData && createRoom) {
+      const existingData = cache.readQuery<{ listRooms?: { items: Room[] } }>({ query: gql(queries.listRooms) }) || { listRooms: { items: [] } };
+      const items = existingData.listRooms?.items ?? [];
+      if (createRoom) {
         cache.writeQuery({
-          query: queries.listRooms,
+          query: gql(queries.listRooms),
           data: {
-            listRooms: [...existingData.listRooms, createRoom],
+            listRooms: {
+              ...existingData.listRooms,
+              items: [...items, createRoom],
+            },
           },
         });
       }
     },
-    // Handles errors specifically from this mutation
     onError: (error) => {
       console.error('Error creating room:', error);
-      // You could trigger a toast notification here
     }
   });
 
-  // --- Event Handlers ---
-
-  // Simplified createRoom function
   const createRoom = () => {
     if (!newRoomName.trim()) return;
     createRoomMutation({
-      variables: { name: newRoomName.trim() },
+      variables: { input: { name: newRoomName.trim(), roomType: newRoomType } },
     });
   };
 
@@ -71,86 +120,178 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
     }
   };
 
-  // --- Render Logic ---
-
-  // Loading state for the initial room list
   if (queryLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" className="mb-4" />
-          <p className="text-gray-600">Loading workspaces...</p>
+          <p className="text-gray-600">Loading rooms...</p>
         </div>
       </div>
     );
   }
 
-  // Error state for the initial room list
   if (queryError) {
     return (
       <div className="flex-1 flex items-center justify-center text-center p-4">
         <div>
-          <h3 className="text-xl font-semibold text-red-600 mb-2">Error loading workspaces</h3>
+          <h3 className="text-xl font-semibold text-red-600 mb-2">Error loading rooms</h3>
           <p className="text-gray-600 bg-red-50 p-3 rounded-md">{queryError.message}</p>
         </div>
       </div>
     );
   }
 
-  // Use queryData directly, providing a fallback empty array
-  const rooms = queryData?.listRooms || [];
+  const rooms = queryData?.listRooms?.items || [];
 
   return (
-    <div className="flex-1 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Choose Your Workspace</h2>
-            <p className="text-gray-600">Select a workspace to start collaborating with your team</p>
+    <div className="flex-1 bg-gradient-to-br from-gray-50 to-blue-50/30 min-h-screen">
+      <div className="max-w-6xl mx-auto p-8">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl mb-6 shadow-lg">
+            <MessageSquare className="w-10 h-10 text-white" />
           </div>
+          <h2 className="text-4xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Choose Your Workspace
+          </h2>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Select a room you own or are a member of, or create a new workspace to collaborate with your team.
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center space-x-4 mb-12">
           <Button
-            onClick={() => setShowCreateModal(true)}
-            className="shadow-lg"
+            variant="outline"
+            size="lg"
+            onClick={() => setShowJoinByIdModal(true)}
+            className="bg-white/80 backdrop-blur-sm border-2 border-blue-200 hover:border-blue-300 shadow-lg"
           >
-            <Plus className="w-5 h-5" />
-            Create Workspace
+            <Link className="w-5 h-5 mr-2" />
+            Join by ID
+          </Button>
+          <Button
+            size="lg"
+            onClick={() => setShowCreateModal(true)}
+            className="shadow-xl hover:shadow-2xl"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Create New Room
           </Button>
         </div>
 
         {rooms.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Hash className="w-8 h-8 text-gray-400" />
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Sparkles className="w-12 h-12 text-blue-500" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No workspaces yet</h3>
-            <p className="text-gray-600 mb-6">Create your first workspace to get started!</p>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">Ready to get started?</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto text-lg">
+              Create your first room or join an existing one to start collaborating with your team.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Plus className="w-6 h-6 text-blue-600" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Create Room</h4>
+                <p className="text-gray-600 text-sm">Start a new workspace for your team</p>
+              </div>
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-6 h-6 text-purple-600" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Join Team</h4>
+                <p className="text-gray-600 text-sm">Connect with existing workspaces</p>
+              </div>
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="w-6 h-6 text-green-600" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Start Chatting</h4>
+                <p className="text-gray-600 text-sm">Begin real-time conversations</p>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {rooms.map((room) => (
-              <div
-                key={room.id}
-                onClick={() => onJoinRoom(room)}
-                className="bg-white rounded-2xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 cursor-pointer group transform hover:-translate-y-1"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <Hash className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-sm">→</span>
+          <div>
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Workspaces</h3>
+              <p className="text-gray-600">Select a room to continue your conversations</p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {rooms.map((room: Room) => (
+                <div
+                  key={room.id}
+                  onClick={() => onJoinRoom(room)}
+                  className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:border-blue-300 hover:shadow-2xl transition-all duration-300 cursor-pointer group transform hover:-translate-y-2 relative overflow-hidden"
+                >
+                  {/* Background decoration */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full -translate-y-1/2 translate-x-1/2 transition-transform group-hover:scale-110"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Hash className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                          <span className="text-white text-lg font-bold">→</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                      {room.name}
+                    </h3>
+                    
+                    <div className="flex items-center justify-between mb-4">
+                      <span className={`text-xs font-bold px-3 py-2 rounded-full flex items-center shadow-sm ${
+                        room.roomType === 'public' 
+                          ? 'bg-gradient-to-r from-green-400 to-green-500 text-white' 
+                          : 'bg-gradient-to-r from-orange-400 to-orange-500 text-white'
+                      }`}>
+                        {room.roomType === 'public' ? (
+                          <Globe className="w-3 h-3 mr-1" />
+                        ) : (
+                          <Lock className="w-3 h-3 mr-1" />
+                        )}
+                        {room.roomType.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Created {new Date(room.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </div>
+                    
+                    <div className="mt-6 pt-4 border-t border-gray-100">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Click to join</span>
+                        <div className="flex items-center space-x-1">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-green-600 font-medium">Active</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{room.name}</h3>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Created {new Date(room.createdAt).toLocaleDateString()}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Join Room By ID Modal */}
+        {showJoinByIdModal && (
+          <JoinRoomByIdModal
+            onJoinRoom={onJoinRoom}
+            onClose={() => setShowJoinByIdModal(false)}
+          />
         )}
 
         {/* Create Room Modal */}
@@ -160,17 +301,28 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
               <Button variant="outline" size="sm" className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={() => setShowCreateModal(false)}>
                 <X className="w-5 h-5"/>
               </Button>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Create New Workspace</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Create New Room</h3>
 
               <Input
-                label="Workspace Name"
-                placeholder="Enter workspace name"
+                label="Room Name"
+                placeholder="Enter room name"
                 value={newRoomName}
                 onChange={(e) => setNewRoomName(e.target.value)}
                 onKeyPress={handleKeyPress}
                 maxLength={50}
                 autoFocus
               />
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Room Type</label>
+                <select
+                  value={newRoomType}
+                  onChange={e => setNewRoomType(e.target.value as 'public' | 'private')}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="public">Public</option>
+                  <option value="private">Private</option>
+                </select>
+              </div>
               
               {createRoomError && <p className="text-red-500 text-sm mt-2">{createRoomError.message}</p>}
 
@@ -179,7 +331,7 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
                   Cancel
                 </Button>
                 <Button onClick={createRoom} loading={createRoomLoading} className="flex-1">
-                  Create Workspace
+                  Create Room
                 </Button>
               </div>
             </div>

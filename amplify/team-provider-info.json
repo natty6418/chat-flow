@@ -1,0 +1,37 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-realtimechat-dev-1252d-authRole",
+      "UnauthRoleArn": "arn:aws:iam::357565302380:role/amplify-realtimechat-dev-1252d-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::357565302380:role/amplify-realtimechat-dev-1252d-authRole",
+      "Region": "eu-west-1",
+      "DeploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
+      "UnauthRoleName": "amplify-realtimechat-dev-1252d-unauthRole",
+      "StackName": "amplify-realtimechat-dev-1252d",
+      "StackId": "arn:aws:cloudformation:eu-west-1:357565302380:stack/amplify-realtimechat-dev-1252d/f55a9680-6d3e-11f0-af77-02a9c2326b79",
+      "AmplifyAppId": "d20da2d79z00h7"
+    },
+    "categories": {
+      "auth": {
+        "realtimechat3c34c86c": {}
+      },
+      "api": {
+        "realtimechat": {}
+      },
+      "function": {
+        "joinRoomLambda": {
+          "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
+          "s3Key": "amplify-builds/joinRoomLambda-4b745575744774486d4a-build.zip"
+        },
+        "createMessage": {
+          "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
+          "s3Key": "amplify-builds/createMessage-3664356a7576557a5878-build.zip"
+        },
+        "getRoomMembersDetailsLambda": {
+          "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
+          "s3Key": "amplify-builds/getRoomMembersDetailsLambda-504b6e6365624a725361-build.zip"
+        }
+      }
+    }
+  }
+}

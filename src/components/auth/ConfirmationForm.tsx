@@ -4,12 +4,12 @@ import { Input } from '../ui/Input';
 import { useAuth } from '../../hooks/useAuth';
 
 interface ConfirmationFormProps {
-  username: string;
+  email: string;
   onSuccess: () => void;
   onBackToSignIn: () => void;
 }
 
-export function ConfirmationForm({ username, onSuccess, onBackToSignIn }: ConfirmationFormProps) {
+export function ConfirmationForm({ email, onSuccess, onBackToSignIn }: ConfirmationFormProps) {
   const [confirmationCode, setConfirmationCode] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
@@ -24,7 +24,7 @@ export function ConfirmationForm({ username, onSuccess, onBackToSignIn }: Confir
     }
 
     try {
-      await confirmSignUp(username, confirmationCode.trim());
+      await confirmSignUp(email, confirmationCode.trim());
       onSuccess();
     } catch (error) {
       console.log('Confirmation error:', error);
@@ -36,7 +36,7 @@ export function ConfirmationForm({ username, onSuccess, onBackToSignIn }: Confir
       setResendLoading(true);
       setResendSuccess(false);
       clearError();
-      await resendCode(username);
+      await resendCode(email);
       setResendSuccess(true);
       setTimeout(() => setResendSuccess(false), 3000);
     } catch (error: unknown) {
@@ -57,7 +57,7 @@ export function ConfirmationForm({ username, onSuccess, onBackToSignIn }: Confir
         <p className="text-gray-600 mb-2">
           We've sent a confirmation code to the email address for:
         </p>
-        <p className="font-semibold text-gray-800">{username}</p>
+        <p className="font-semibold text-gray-800">{email}</p>
       </div>
 
       <Input

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "api": {
+      "realtimechat": [
+        "Query",
+        "Mutation",
+        "Subscription"
+      ]
+    },
+    "storage": {
+      "Room:@model(appsync)": [
+        "read"
+      ],
+      "Message:@model(appsync)": [
+        "create",
+        "update"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}

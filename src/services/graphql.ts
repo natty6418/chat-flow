@@ -30,6 +30,7 @@ export const queries = {
         id
         name
         createdAt
+        owner
       }
     }
   `,

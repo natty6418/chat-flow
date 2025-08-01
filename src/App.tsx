@@ -6,8 +6,8 @@ import { ChatApp } from './components/chat/ChatApp';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { setContext } from '@apollo/client/link/context';
 import { ApolloClient, InMemoryCache, HttpLink, ApolloProvider } from '@apollo/client';
-import awsConfig from './config/aws-config';
-
+// @ts-expect-error - Amplify generated file doesn't have types
+import awsmobile from './aws-exports';
 
 // --- Helper Components for Routing (No changes needed here) ---
 
@@ -54,7 +54,7 @@ function ApolloClientProvider({ children }: { children: React.ReactNode }) {
 
   const client = useMemo(() => {
     const httpLink = new HttpLink({
-      uri: awsConfig.API.GraphQL.endpoint,
+      uri: awsmobile.aws_appsync_graphqlEndpoint,
     });
 
     const authLink = setContext((_, { headers }) => ({

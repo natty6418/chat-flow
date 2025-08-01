@@ -62,7 +62,7 @@ export function SignUpForm({ onSwitchToSignIn, onSuccess }: SignUpFormProps) {
       console.log('Starting signup process...');
       await signUp(email.trim(), password, username.trim());
       console.log('Signup successful, calling onSuccess...');
-      onSuccess(username.trim());
+      onSuccess(email.trim());
     } catch (error) {
       console.error('Signup error:', error);
       // Error handled by useAuth
