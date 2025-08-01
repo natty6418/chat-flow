@@ -43,6 +43,12 @@
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
           "s3Key": "amplify-builds/deleteRoomLambda-567856334d6236416554-build.zip"
         }
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d20da2d79z00h7",
+          "type": "cicd"
+        }
       }
     }
   }

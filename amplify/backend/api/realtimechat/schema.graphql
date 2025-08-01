@@ -34,15 +34,6 @@ type Message
 }
 
 
-type Mutation {
-	# This custom mutation is now essential for joining rooms.
-	joinRoom(roomId: ID!): Room @function(name: "joinRoomLambda-${env}")
-	createMessage(body: String!, roomId: ID!): Message @function(name: "createMessage-${env}")
-	# Custom mutation for creating rooms with limit validation
-	createRoom(name: String!, roomType: String!): Room @function(name: "createRoomLambda-${env}")
-  deleteRoom(id: ID!): Room @function(name: "deleteRoomLambda-${env}")
-	
-}
 type Subscription {
   onCreateMessage: Message
     @aws_subscribe(mutations: ["createMessage"])
@@ -53,13 +44,14 @@ type UserDetail {
   preferredUsername: String
 }
 
-# Update the Query type to include our new custom query.
+type Mutation {
+	joinRoom(roomId: ID!): Room # @function(name: "joinRoomLambda-${env}")
+	createMessage(body: String!, roomId: ID!): Message # @function(name: "createMessage-${env}")
+	createRoom(name: String!, roomType: String!): Room # @function(name: "createRoomLambda-${env}")
+	deleteRoom(id: ID!): Room # @function(name: "deleteRoomLambda-${env}")
+}
+
 type Query {
-  # This new query will be handled by a Lambda function.
-  getRoomMembersDetails(roomId: ID!): [UserDetail]
-    @function(name: "getRoomMembersDetailsLambda-${env}")
-  
-  # Query to get user's room count for validation
-  getUserRoomCount: Int
-    @function(name: "getUserRoomCountLambda-${env}")
+	getRoomMembersDetails(roomId: ID!): [UserDetail] # @function(name: "getRoomMembersDetailsLambda-${env}")
+	getUserRoomCount: Int # @function(name: "getUserRoomCountLambda-${env}")
 }
