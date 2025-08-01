@@ -35,6 +35,7 @@ export const createMessage = /* GraphQL */ `mutation CreateMessage($body: String
     createdAt
     roomId
     roomMembers
+    ttl
     updatedAt
     owner
     __typename
@@ -44,11 +45,8 @@ export const createMessage = /* GraphQL */ `mutation CreateMessage($body: String
   APITypes.CreateMessageMutationVariables,
   APITypes.CreateMessageMutation
 >;
-export const createRoom = /* GraphQL */ `mutation CreateRoom(
-  $input: CreateRoomInput!
-  $condition: ModelRoomConditionInput
-) {
-  createRoom(input: $input, condition: $condition) {
+export const createRoom = /* GraphQL */ `mutation CreateRoom($name: String!, $roomType: String!) {
+  createRoom(name: $name, roomType: $roomType) {
     id
     name
     roomType
@@ -67,34 +65,8 @@ export const createRoom = /* GraphQL */ `mutation CreateRoom(
   APITypes.CreateRoomMutationVariables,
   APITypes.CreateRoomMutation
 >;
-export const updateRoom = /* GraphQL */ `mutation UpdateRoom(
-  $input: UpdateRoomInput!
-  $condition: ModelRoomConditionInput
-) {
-  updateRoom(input: $input, condition: $condition) {
-    id
-    name
-    roomType
-    members
-    messages {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    owner
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateRoomMutationVariables,
-  APITypes.UpdateRoomMutation
->;
-export const deleteRoom = /* GraphQL */ `mutation DeleteRoom(
-  $input: DeleteRoomInput!
-  $condition: ModelRoomConditionInput
-) {
-  deleteRoom(input: $input, condition: $condition) {
+export const deleteRoom = /* GraphQL */ `mutation DeleteRoom($id: ID!) {
+  deleteRoom(id: $id) {
     id
     name
     roomType

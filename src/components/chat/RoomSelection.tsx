@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery,  useMutation, gql } from '@apollo/client';
 
-import { Plus, Link, Hash, Calendar, X, Lock, Globe, Sparkles, Users, MessageSquare } from 'lucide-react';
+import { Plus, Link, Hash, Calendar, Lock, Globe, Sparkles, Users, MessageSquare, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
@@ -80,11 +80,26 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
   const [newRoomType, setNewRoomType] = useState<'public' | 'private'>('public');
 
   const { loading: queryLoading, error: queryError, data: queryData } = useQuery(gql(queries.listRooms));
+  
+  // Add query for user room count to check the 5-room limit
+  const GET_USER_ROOM_COUNT = gql`
+    query GetUserRoomCount {
+      getUserRoomCount
+    }
+  `;
+  
+  const { data: roomCountData, refetch: refetchRoomCount } = useQuery(GET_USER_ROOM_COUNT);
+  const userRoomCount = roomCountData?.getUserRoomCount || 0;
+  const maxRooms = 5;
+  const canCreateRoom = userRoomCount < maxRooms;
+  
   const [createRoomMutation, { loading: createRoomLoading, error: createRoomError }] = useMutation(gql(mutations.createRoom), {
     onCompleted: (data) => {
       const newRoom = data.createRoom;
       setNewRoomName('');
       setShowCreateModal(false);
+      // Refetch room count after creating a room
+      refetchRoomCount();
       onJoinRoom(newRoom);
     },
     update: (cache, { data: { createRoom } }) => {
@@ -107,12 +122,77 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
     }
   });
 
+  // Add delete room mutation
+  const [deleteRoomMutation, { loading: deleteRoomLoading }] = useMutation(gql(mutations.deleteRoom), {
+    onCompleted: () => {
+      // Refetch room count after deleting a room
+      refetchRoomCount();
+    },
+    update: (cache, { data: { deleteRoom } }) => {
+      if (deleteRoom) {
+        const existingData = cache.readQuery<{ listRooms?: { items: Room[] } }>({ query: gql(queries.listRooms) }) || { listRooms: { items: [] } };
+        const items = existingData.listRooms?.items ?? [];
+        const updatedItems = items.filter((room: Room) => room.id !== deleteRoom.id);
+        
+        cache.writeQuery({
+          query: gql(queries.listRooms),
+          data: {
+            listRooms: {
+              ...existingData.listRooms,
+              items: updatedItems,
+            },
+          },
+        });
+      }
+    },
+    onError: (error) => {
+      console.error('Error deleting room:', error);
+      alert('Failed to delete room: ' + error.message);
+    }
+  });
+
   const createRoom = () => {
     if (!newRoomName.trim()) return;
+    if (!canCreateRoom) {
+      alert(`You've reached the maximum of ${maxRooms} rooms. Please delete an existing room before creating a new one.`);
+      return;
+    }
     createRoomMutation({
-      variables: { input: { name: newRoomName.trim(), roomType: newRoomType } },
+      variables: { name: newRoomName.trim(), roomType: newRoomType },
     });
   };
+
+  // const deleteRoom = (roomId: string, roomName: string, event: React.MouseEvent) => {
+  //   event.stopPropagation(); // Prevent triggering the room join
+    
+  //   if (confirm(`Are you sure you want to delete "${roomName}"? This action cannot be undone.`)) {
+  //     deleteRoomMutation({
+  //       variables: {
+  //         input: { 
+  //           id: roomId 
+  //         },
+  //       },
+  //     });
+  //   }
+  // };
+
+  const deleteRoom = (roomId: string, roomName: string, event: React.MouseEvent) => {
+  event.stopPropagation(); // Prevent triggering the room join
+
+  // Temporarily remove the confirmation for testing.
+  // In a real app, you would trigger a custom confirmation modal here.
+  console.log(`Attempting to delete room: ${roomId}`);
+
+ deleteRoomMutation({
+    variables: {
+        id: roomId 
+    },
+  }).catch(error => {
+    // Add this .catch() block for extra logging
+    console.error("Caught error directly on mutation call:", error);
+    alert("Failed to delete room (see console for details).");
+  }); 
+};
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -174,10 +254,12 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
           <Button
             size="lg"
             onClick={() => setShowCreateModal(true)}
-            className="shadow-xl hover:shadow-2xl"
+            disabled={!canCreateRoom}
+            className={`shadow-xl hover:shadow-2xl ${!canCreateRoom ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title={!canCreateRoom ? `You've reached the maximum of ${maxRooms} rooms` : ''}
           >
             <Plus className="w-5 h-5 mr-2" />
-            Create New Room
+            {canCreateRoom ? 'Create New Room' : `Max Rooms Reached (${userRoomCount}/${maxRooms})`}
           </Button>
         </div>
 
@@ -235,7 +317,17 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
                       <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                         <Hash className="w-8 h-8 text-white" />
                       </div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                      <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        {/* Delete button - only show for room owners */}
+                        <button
+                          onClick={(e) => deleteRoom(room.id, room.name, e)}
+                          disabled={deleteRoomLoading}
+                          className="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-colors"
+                          title="Delete room"
+                        >
+                          <Trash2 className="w-4 h-4 text-white" />
+                        </button>
+                        {/* Join button */}
                         <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
                           <span className="text-white text-lg font-bold">→</span>
                         </div>
@@ -298,10 +390,28 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl relative">
-              <Button variant="outline" size="sm" className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={() => setShowCreateModal(false)}>
-                <X className="w-5 h-5"/>
-              </Button>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Create New Room</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Create New Room</h3>
+              
+              {/* Room count indicator */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-blue-700 font-medium">Your Rooms</span>
+                  <span className={`text-sm font-bold ${userRoomCount >= maxRooms ? 'text-red-600' : 'text-blue-600'}`}>
+                    {userRoomCount}/{maxRooms}
+                  </span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
+                  <div 
+                    className={`h-2 rounded-full ${userRoomCount >= maxRooms ? 'bg-red-500' : 'bg-blue-500'}`}
+                    style={{ width: `${(userRoomCount / maxRooms) * 100}%` }}
+                  ></div>
+                </div>
+                {userRoomCount >= maxRooms && (
+                  <p className="text-xs text-red-600 mt-2">
+                    You've reached the maximum number of rooms. Delete an existing room to create a new one.
+                  </p>
+                )}
+              </div>
 
               <Input
                 label="Room Name"
@@ -330,7 +440,12 @@ export function RoomSelection({ onJoinRoom }: RoomSelectionProps) {
                 <Button variant="secondary" onClick={() => setShowCreateModal(false)} className="flex-1">
                   Cancel
                 </Button>
-                <Button onClick={createRoom} loading={createRoomLoading} className="flex-1">
+                <Button 
+                  onClick={createRoom} 
+                  loading={createRoomLoading} 
+                  disabled={!canCreateRoom || !newRoomName.trim()}
+                  className="flex-1"
+                >
                   Create Room
                 </Button>
               </div>

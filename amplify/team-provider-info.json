@@ -25,11 +25,23 @@
         },
         "createMessage": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
-          "s3Key": "amplify-builds/createMessage-3664356a7576557a5878-build.zip"
+          "s3Key": "amplify-builds/createMessage-686d69516861546f5865-build.zip"
         },
         "getRoomMembersDetailsLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
           "s3Key": "amplify-builds/getRoomMembersDetailsLambda-504b6e6365624a725361-build.zip"
+        },
+        "createRoomLambda": {
+          "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
+          "s3Key": "amplify-builds/createRoomLambda-3967307370505443464c-build.zip"
+        },
+        "getUserRoomCountLambda": {
+          "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
+          "s3Key": "amplify-builds/getUserRoomCountLambda-355a5237785a56507662-build.zip"
+        },
+        "deleteRoomLambda": {
+          "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
+          "s3Key": "amplify-builds/deleteRoomLambda-567856334d6236416554-build.zip"
         }
       }
     }

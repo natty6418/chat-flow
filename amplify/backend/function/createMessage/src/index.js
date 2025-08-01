@@ -55,6 +55,9 @@ exports.handler = async (event) => {
   // --- Step 3: Create the new Message object ---
   const messageId = randomUUID();
   const timestamp = new Date().toISOString();
+  
+  // Calculate TTL for 24 hours from now (86400 seconds)
+  const ttl = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // 24 hours in seconds
 
   // Create a definitive list of who can read this message.
   // It includes all members plus the owner. A Set is used to avoid duplicates.
@@ -69,6 +72,8 @@ exports.handler = async (event) => {
     updatedAt: timestamp,
     // This is the crucial step: stamp the message with the definitive list of readers
     roomMembers: readers,
+    // TTL field for automatic deletion after 24 hours
+    ttl: ttl,
     __typename: "Message",
   };
 

@@ -15,6 +15,7 @@ export const onCreateMessage = /* GraphQL */ `subscription OnCreateMessage {
     createdAt
     roomId
     roomMembers
+    ttl
     updatedAt
     owner
     __typename
@@ -23,73 +24,4 @@ export const onCreateMessage = /* GraphQL */ `subscription OnCreateMessage {
 ` as GeneratedSubscription<
   APITypes.OnCreateMessageSubscriptionVariables,
   APITypes.OnCreateMessageSubscription
->;
-export const onCreateRoom = /* GraphQL */ `subscription OnCreateRoom(
-  $filter: ModelSubscriptionRoomFilterInput
-  $owner: String
-) {
-  onCreateRoom(filter: $filter, owner: $owner) {
-    id
-    name
-    roomType
-    members
-    messages {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    owner
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnCreateRoomSubscriptionVariables,
-  APITypes.OnCreateRoomSubscription
->;
-export const onUpdateRoom = /* GraphQL */ `subscription OnUpdateRoom(
-  $filter: ModelSubscriptionRoomFilterInput
-  $owner: String
-) {
-  onUpdateRoom(filter: $filter, owner: $owner) {
-    id
-    name
-    roomType
-    members
-    messages {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    owner
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnUpdateRoomSubscriptionVariables,
-  APITypes.OnUpdateRoomSubscription
->;
-export const onDeleteRoom = /* GraphQL */ `subscription OnDeleteRoom(
-  $filter: ModelSubscriptionRoomFilterInput
-  $owner: String
-) {
-  onDeleteRoom(filter: $filter, owner: $owner) {
-    id
-    name
-    roomType
-    members
-    messages {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    owner
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnDeleteRoomSubscriptionVariables,
-  APITypes.OnDeleteRoomSubscription
 >;

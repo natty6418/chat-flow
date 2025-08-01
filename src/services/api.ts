@@ -27,30 +27,31 @@ export type Message = {
   createdAt: string,
   roomId: string,
   roomMembers?: Array< string | null > | null,
+  ttl?: number | null,
   updatedAt: string,
   owner?: string | null,
 };
 
-export type CreateRoomInput = {
-  id?: string | null,
-  name: string,
-  roomType: string,
-  members?: Array< string | null > | null,
+export type UserDetail = {
+  __typename: "UserDetail",
+  userId: string,
+  preferredUsername?: string | null,
 };
 
-export type ModelRoomConditionInput = {
+export type ModelRoomFilterInput = {
+  id?: ModelIDInput | null,
   name?: ModelStringInput | null,
   roomType?: ModelStringInput | null,
   members?: ModelStringInput | null,
-  and?: Array< ModelRoomConditionInput | null > | null,
-  or?: Array< ModelRoomConditionInput | null > | null,
-  not?: ModelRoomConditionInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
+  and?: Array< ModelRoomFilterInput | null > | null,
+  or?: Array< ModelRoomFilterInput | null > | null,
+  not?: ModelRoomFilterInput | null,
   owner?: ModelStringInput | null,
 };
 
-export type ModelStringInput = {
+export type ModelIDInput = {
   ne?: string | null,
   eq?: string | null,
   le?: string | null,
@@ -90,37 +91,7 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
-export type UpdateRoomInput = {
-  id: string,
-  name?: string | null,
-  roomType?: string | null,
-  members?: Array< string | null > | null,
-};
-
-export type DeleteRoomInput = {
-  id: string,
-};
-
-export type UserDetail = {
-  __typename: "UserDetail",
-  userId: string,
-  preferredUsername?: string | null,
-};
-
-export type ModelRoomFilterInput = {
-  id?: ModelIDInput | null,
-  name?: ModelStringInput | null,
-  roomType?: ModelStringInput | null,
-  members?: ModelStringInput | null,
-  createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-  and?: Array< ModelRoomFilterInput | null > | null,
-  or?: Array< ModelRoomFilterInput | null > | null,
-  not?: ModelRoomFilterInput | null,
-  owner?: ModelStringInput | null,
-};
-
-export type ModelIDInput = {
+export type ModelStringInput = {
   ne?: string | null,
   eq?: string | null,
   le?: string | null,
@@ -148,11 +119,24 @@ export type ModelMessageFilterInput = {
   createdAt?: ModelStringInput | null,
   roomId?: ModelIDInput | null,
   roomMembers?: ModelStringInput | null,
+  ttl?: ModelIntInput | null,
   updatedAt?: ModelStringInput | null,
   and?: Array< ModelMessageFilterInput | null > | null,
   or?: Array< ModelMessageFilterInput | null > | null,
   not?: ModelMessageFilterInput | null,
   owner?: ModelStringInput | null,
+};
+
+export type ModelIntInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
 };
 
 export type ModelStringKeyConditionInput = {
@@ -170,48 +154,6 @@ export enum ModelSortDirection {
   DESC = "DESC",
 }
 
-
-export type ModelSubscriptionRoomFilterInput = {
-  id?: ModelSubscriptionIDInput | null,
-  name?: ModelSubscriptionStringInput | null,
-  roomType?: ModelSubscriptionStringInput | null,
-  createdAt?: ModelSubscriptionStringInput | null,
-  updatedAt?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionRoomFilterInput | null > | null,
-  or?: Array< ModelSubscriptionRoomFilterInput | null > | null,
-  owner?: ModelStringInput | null,
-  members?: ModelStringInput | null,
-};
-
-export type ModelSubscriptionIDInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  in?: Array< string | null > | null,
-  notIn?: Array< string | null > | null,
-};
-
-export type ModelSubscriptionStringInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  in?: Array< string | null > | null,
-  notIn?: Array< string | null > | null,
-};
 
 export type JoinRoomMutationVariables = {
   roomId: string,
@@ -247,14 +189,15 @@ export type CreateMessageMutation = {
     createdAt: string,
     roomId: string,
     roomMembers?: Array< string | null > | null,
+    ttl?: number | null,
     updatedAt: string,
     owner?: string | null,
   } | null,
 };
 
 export type CreateRoomMutationVariables = {
-  input: CreateRoomInput,
-  condition?: ModelRoomConditionInput | null,
+  name: string,
+  roomType: string,
 };
 
 export type CreateRoomMutation = {
@@ -274,31 +217,8 @@ export type CreateRoomMutation = {
   } | null,
 };
 
-export type UpdateRoomMutationVariables = {
-  input: UpdateRoomInput,
-  condition?: ModelRoomConditionInput | null,
-};
-
-export type UpdateRoomMutation = {
-  updateRoom?:  {
-    __typename: "Room",
-    id: string,
-    name: string,
-    roomType: string,
-    members?: Array< string | null > | null,
-    messages?:  {
-      __typename: "ModelMessageConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-    owner?: string | null,
-  } | null,
-};
-
 export type DeleteRoomMutationVariables = {
-  input: DeleteRoomInput,
-  condition?: ModelRoomConditionInput | null,
+  id: string,
 };
 
 export type DeleteRoomMutation = {
@@ -328,6 +248,13 @@ export type GetRoomMembersDetailsQuery = {
     userId: string,
     preferredUsername?: string | null,
   } | null > | null,
+};
+
+export type GetUserRoomCountQueryVariables = {
+};
+
+export type GetUserRoomCountQuery = {
+  getUserRoomCount?: number | null,
 };
 
 export type GetRoomQueryVariables = {
@@ -386,6 +313,7 @@ export type GetMessageQuery = {
     createdAt: string,
     roomId: string,
     roomMembers?: Array< string | null > | null,
+    ttl?: number | null,
     updatedAt: string,
     owner?: string | null,
   } | null,
@@ -407,6 +335,7 @@ export type ListMessagesQuery = {
       createdAt: string,
       roomId: string,
       roomMembers?: Array< string | null > | null,
+      ttl?: number | null,
       updatedAt: string,
       owner?: string | null,
     } | null >,
@@ -433,6 +362,7 @@ export type MessagesByRoomIdAndCreatedAtQuery = {
       createdAt: string,
       roomId: string,
       roomMembers?: Array< string | null > | null,
+      ttl?: number | null,
       updatedAt: string,
       owner?: string | null,
     } | null >,
@@ -451,72 +381,7 @@ export type OnCreateMessageSubscription = {
     createdAt: string,
     roomId: string,
     roomMembers?: Array< string | null > | null,
-    updatedAt: string,
-    owner?: string | null,
-  } | null,
-};
-
-export type OnCreateRoomSubscriptionVariables = {
-  filter?: ModelSubscriptionRoomFilterInput | null,
-  owner?: string | null,
-};
-
-export type OnCreateRoomSubscription = {
-  onCreateRoom?:  {
-    __typename: "Room",
-    id: string,
-    name: string,
-    roomType: string,
-    members?: Array< string | null > | null,
-    messages?:  {
-      __typename: "ModelMessageConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-    owner?: string | null,
-  } | null,
-};
-
-export type OnUpdateRoomSubscriptionVariables = {
-  filter?: ModelSubscriptionRoomFilterInput | null,
-  owner?: string | null,
-};
-
-export type OnUpdateRoomSubscription = {
-  onUpdateRoom?:  {
-    __typename: "Room",
-    id: string,
-    name: string,
-    roomType: string,
-    members?: Array< string | null > | null,
-    messages?:  {
-      __typename: "ModelMessageConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-    owner?: string | null,
-  } | null,
-};
-
-export type OnDeleteRoomSubscriptionVariables = {
-  filter?: ModelSubscriptionRoomFilterInput | null,
-  owner?: string | null,
-};
-
-export type OnDeleteRoomSubscription = {
-  onDeleteRoom?:  {
-    __typename: "Room",
-    id: string,
-    name: string,
-    roomType: string,
-    members?: Array< string | null > | null,
-    messages?:  {
-      __typename: "ModelMessageConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
+    ttl?: number | null,
     updatedAt: string,
     owner?: string | null,
   } | null,

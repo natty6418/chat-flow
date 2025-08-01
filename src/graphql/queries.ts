@@ -19,6 +19,13 @@ export const getRoomMembersDetails = /* GraphQL */ `query GetRoomMembersDetails(
   APITypes.GetRoomMembersDetailsQueryVariables,
   APITypes.GetRoomMembersDetailsQuery
 >;
+export const getUserRoomCount = /* GraphQL */ `query GetUserRoomCount {
+  getUserRoomCount
+}
+` as GeneratedQuery<
+  APITypes.GetUserRoomCountQueryVariables,
+  APITypes.GetUserRoomCountQuery
+>;
 export const getRoom = /* GraphQL */ `query GetRoom($id: ID!) {
   getRoom(id: $id) {
     id
@@ -64,6 +71,7 @@ export const getMessage = /* GraphQL */ `query GetMessage($id: ID!) {
     createdAt
     roomId
     roomMembers
+    ttl
     updatedAt
     owner
     __typename
@@ -85,6 +93,7 @@ export const listMessages = /* GraphQL */ `query ListMessages(
       createdAt
       roomId
       roomMembers
+      ttl
       updatedAt
       owner
       __typename
@@ -119,6 +128,7 @@ export const messagesByRoomIdAndCreatedAt = /* GraphQL */ `query MessagesByRoomI
       createdAt
       roomId
       roomMembers
+      ttl
       updatedAt
       owner
       __typename

@@ -78,6 +78,35 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "createRoomLambda": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput"
+          ],
+          "category": "api",
+          "resourceName": "realtimechat"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "deleteRoomLambda": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput"
+          ],
+          "category": "api",
+          "resourceName": "realtimechat"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "getRoomMembersDetailsLambda": {
       "build": true,
       "dependsOn": [
@@ -88,6 +117,21 @@
           "category": "auth",
           "resourceName": "realtimechat3c34c86c"
         },
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput"
+          ],
+          "category": "api",
+          "resourceName": "realtimechat"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "getUserRoomCountLambda": {
+      "build": true,
+      "dependsOn": [
         {
           "attributes": [
             "GraphQLAPIIdOutput",
@@ -133,6 +177,38 @@
         }
       ]
     },
+    "AMPLIFY_function_createRoomLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "createRoomLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_createRoomLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "createRoomLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_deleteRoomLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "deleteRoomLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_deleteRoomLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "deleteRoomLambda"
+        }
+      ]
+    },
     "AMPLIFY_function_getRoomMembersDetailsLambda_deploymentBucketName": {
       "usedBy": [
         {
@@ -146,6 +222,22 @@
         {
           "category": "function",
           "resourceName": "getRoomMembersDetailsLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_getUserRoomCountLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getUserRoomCountLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_getUserRoomCountLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getUserRoomCountLambda"
         }
       ]
     },

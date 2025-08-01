@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "storage": {
+      "Room:@model(appsync)": [
+        "read",
+        "delete"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}

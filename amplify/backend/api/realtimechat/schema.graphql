@@ -1,5 +1,5 @@
 type Room
-	@model
+	@model(mutations: {create: null})
 	@auth(rules: [
 		# Rule 1: The user who created the room (owner) has full control.
 		{ allow: owner },
@@ -13,6 +13,8 @@ type Room
 	roomType: String! # "public" or "private"
 	members: [String]
 	messages: [Message] @hasMany(indexName: "byRoom", fields: ["id"])
+	createdAt: AWSDateTime!
+	updatedAt: AWSDateTime!
 }
 
 type Message
@@ -27,13 +29,19 @@ type Message
 	createdAt: AWSDateTime!
 	roomId: ID! @index(name: "byRoom", sortKeyFields: ["createdAt"])
 	roomMembers: [String]
+	# TTL field for automatic deletion after 24 hours (86400 seconds)
+	ttl: AWSTimestamp
 }
+
 
 type Mutation {
 	# This custom mutation is now essential for joining rooms.
 	joinRoom(roomId: ID!): Room @function(name: "joinRoomLambda-${env}")
 	createMessage(body: String!, roomId: ID!): Message @function(name: "createMessage-${env}")
-
+	# Custom mutation for creating rooms with limit validation
+	createRoom(name: String!, roomType: String!): Room @function(name: "createRoomLambda-${env}")
+  deleteRoom(id: ID!): Room @function(name: "deleteRoomLambda-${env}")
+	
 }
 type Subscription {
   onCreateMessage: Message
@@ -50,4 +58,8 @@ type Query {
   # This new query will be handled by a Lambda function.
   getRoomMembersDetails(roomId: ID!): [UserDetail]
     @function(name: "getRoomMembersDetailsLambda-${env}")
+  
+  # Query to get user's room count for validation
+  getUserRoomCount: Int
+    @function(name: "getUserRoomCountLambda-${env}")
 }
