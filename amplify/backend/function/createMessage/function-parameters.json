@@ -1,12 +1,5 @@
 {
   "permissions": {
-    "api": {
-      "realtimechat": [
-        "Query",
-        "Mutation",
-        "Subscription"
-      ]
-    },
     "storage": {
       "Room:@model(appsync)": [
         "read"

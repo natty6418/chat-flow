@@ -1,11 +1,6 @@
 {
   "lambdaLayers": [],
   "permissions": {
-    "api": {
-      "realtimechat": [
-        "Mutation"
-      ]
-    },
     "storage": {
       "Room:@model(appsync)": [
         "read",

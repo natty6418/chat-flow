@@ -4,16 +4,6 @@
       "realtimechat3c34c86c": [
         "read"
       ]
-    },
-    "api": {
-      "realtimechat": [
-        "Query"
-      ]
-    },
-    "storage": {
-      "Room:@model(appsync)": [
-        "read"
-      ]
     }
   },
   "lambdaLayers": []

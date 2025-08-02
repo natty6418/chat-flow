@@ -1,4 +1,12 @@
-/*
+/* Amplify Params - DO NOT EDIT
+	API_REALTIMECHAT_GRAPHQLAPIIDOUTPUT
+	API_REALTIMECHAT_MESSAGETABLE_ARN
+	API_REALTIMECHAT_MESSAGETABLE_NAME
+	API_REALTIMECHAT_ROOMTABLE_ARN
+	API_REALTIMECHAT_ROOMTABLE_NAME
+	ENV
+	REGION
+Amplify Params - DO NOT EDIT *//*
 This is the Node.js code for your createMessageLambda function.
 File path: amplify/backend/function/createMessageLambda/src/index.js
 

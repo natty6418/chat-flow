@@ -21,23 +21,23 @@
       "function": {
         "joinRoomLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
-          "s3Key": "amplify-builds/joinRoomLambda-4b745575744774486d4a-build.zip"
+          "s3Key": "amplify-builds/joinRoomLambda-764a7971366c675a6e6f-build.zip"
         },
         "createMessage": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
-          "s3Key": "amplify-builds/createMessage-686d69516861546f5865-build.zip"
+          "s3Key": "amplify-builds/createMessage-6b62744a6d4270324173-build.zip"
         },
         "getRoomMembersDetailsLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
-          "s3Key": "amplify-builds/getRoomMembersDetailsLambda-504b6e6365624a725361-build.zip"
+          "s3Key": "amplify-builds/getRoomMembersDetailsLambda-36324b366b44426f2b42-build.zip"
         },
         "createRoomLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
-          "s3Key": "amplify-builds/createRoomLambda-3967307370505443464c-build.zip"
+          "s3Key": "amplify-builds/createRoomLambda-73746d695a416550455a-build.zip"
         },
         "getUserRoomCountLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
-          "s3Key": "amplify-builds/getUserRoomCountLambda-355a5237785a56507662-build.zip"
+          "s3Key": "amplify-builds/getUserRoomCountLambda-6330384178783243794f-build.zip"
         },
         "deleteRoomLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",

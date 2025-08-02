@@ -19,10 +19,6 @@
     "apirealtimechatGraphQLAPIIdOutput": {
       "Type": "String",
       "Default": "apirealtimechatGraphQLAPIIdOutput"
-    },
-    "apirealtimechatGraphQLAPIEndpointOutput": {
-      "Type": "String",
-      "Default": "apirealtimechatGraphQLAPIEndpointOutput"
     }
   },
   "Conditions": {
@@ -78,12 +74,6 @@
             "REGION": {
               "Ref": "AWS::Region"
             },
-            "API_REALTIMECHAT_GRAPHQLAPIIDOUTPUT": {
-              "Ref": "apirealtimechatGraphQLAPIIdOutput"
-            },
-            "API_REALTIMECHAT_GRAPHQLAPIENDPOINTOUTPUT": {
-              "Ref": "apirealtimechatGraphQLAPIEndpointOutput"
-            },
             "API_REALTIMECHAT_ROOMTABLE_NAME": {
               "Fn::ImportValue": {
                 "Fn::Sub": "${apirealtimechatGraphQLAPIIdOutput}:GetAtt:RoomTable:Name"
@@ -109,6 +99,9 @@
                   }
                 ]
               ]
+            },
+            "API_REALTIMECHAT_GRAPHQLAPIIDOUTPUT": {
+              "Ref": "apirealtimechatGraphQLAPIIdOutput"
             }
           }
         },
@@ -220,34 +213,6 @@
         "PolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "appsync:GraphQL"
-              ],
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:appsync:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":apis/",
-                      {
-                        "Ref": "apirealtimechatGraphQLAPIIdOutput"
-                      },
-                      "/types/Query/*"
-                    ]
-                  ]
-                }
-              ]
-            },
             {
               "Effect": "Allow",
               "Action": [
