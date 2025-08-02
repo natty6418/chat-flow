@@ -114,6 +114,13 @@
           ],
           "category": "auth",
           "resourceName": "realtimechat3c34c86c"
+        },
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput"
+          ],
+          "category": "api",
+          "resourceName": "realtimechat"
         }
       ],
       "providerPlugin": "awscloudformation",

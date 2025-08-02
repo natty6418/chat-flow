@@ -29,7 +29,7 @@
         },
         "getRoomMembersDetailsLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
-          "s3Key": "amplify-builds/getRoomMembersDetailsLambda-36324b366b44426f2b42-build.zip"
+          "s3Key": "amplify-builds/getRoomMembersDetailsLambda-4d372b4f49554f724a44-build.zip"
         },
         "createRoomLambda": {
           "deploymentBucketName": "amplify-realtimechat-dev-1252d-deployment",
