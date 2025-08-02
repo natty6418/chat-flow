@@ -2,6 +2,18 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
+export type Message = {
+  __typename: "Message",
+  id: string,
+  body: string,
+  createdAt: string,
+  roomId: string,
+  roomMembers?: Array< string | null > | null,
+  ttl?: number | null,
+  updatedAt: string,
+  owner?: string | null,
+};
+
 export type Room = {
   __typename: "Room",
   id: string,
@@ -18,24 +30,6 @@ export type ModelMessageConnection = {
   __typename: "ModelMessageConnection",
   items:  Array<Message | null >,
   nextToken?: string | null,
-};
-
-export type Message = {
-  __typename: "Message",
-  id: string,
-  body: string,
-  createdAt: string,
-  roomId: string,
-  roomMembers?: Array< string | null > | null,
-  ttl?: number | null,
-  updatedAt: string,
-  owner?: string | null,
-};
-
-export type UserDetail = {
-  __typename: "UserDetail",
-  userId: string,
-  preferredUsername?: string | null,
 };
 
 export type ModelRoomFilterInput = {
@@ -155,27 +149,6 @@ export enum ModelSortDirection {
 }
 
 
-export type JoinRoomMutationVariables = {
-  roomId: string,
-};
-
-export type JoinRoomMutation = {
-  joinRoom?:  {
-    __typename: "Room",
-    id: string,
-    name: string,
-    roomType: string,
-    members?: Array< string | null > | null,
-    messages?:  {
-      __typename: "ModelMessageConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-    owner?: string | null,
-  } | null,
-};
-
 export type CreateMessageMutationVariables = {
   body: string,
   roomId: string,
@@ -193,68 +166,6 @@ export type CreateMessageMutation = {
     updatedAt: string,
     owner?: string | null,
   } | null,
-};
-
-export type CreateRoomMutationVariables = {
-  name: string,
-  roomType: string,
-};
-
-export type CreateRoomMutation = {
-  createRoom?:  {
-    __typename: "Room",
-    id: string,
-    name: string,
-    roomType: string,
-    members?: Array< string | null > | null,
-    messages?:  {
-      __typename: "ModelMessageConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-    owner?: string | null,
-  } | null,
-};
-
-export type DeleteRoomMutationVariables = {
-  id: string,
-};
-
-export type DeleteRoomMutation = {
-  deleteRoom?:  {
-    __typename: "Room",
-    id: string,
-    name: string,
-    roomType: string,
-    members?: Array< string | null > | null,
-    messages?:  {
-      __typename: "ModelMessageConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-    owner?: string | null,
-  } | null,
-};
-
-export type GetRoomMembersDetailsQueryVariables = {
-  roomId: string,
-};
-
-export type GetRoomMembersDetailsQuery = {
-  getRoomMembersDetails?:  Array< {
-    __typename: "UserDetail",
-    userId: string,
-    preferredUsername?: string | null,
-  } | null > | null,
-};
-
-export type GetUserRoomCountQueryVariables = {
-};
-
-export type GetUserRoomCountQuery = {
-  getUserRoomCount?: number | null,
 };
 
 export type GetRoomQueryVariables = {
