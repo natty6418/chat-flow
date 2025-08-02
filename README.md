@@ -7,6 +7,8 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=for-the-badge&logo=typescript)
 ![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?style=for-the-badge&logo=amazon-aws)
 
+[Visit the live demo](https://chat-flow-eta.vercel.app/)
+
 ## ✨ Features
 
 ### 🚀 **Real-Time Messaging**
