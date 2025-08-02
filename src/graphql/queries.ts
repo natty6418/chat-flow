@@ -8,6 +8,24 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
+export const getRoomMembersDetails = /* GraphQL */ `query GetRoomMembersDetails($roomId: ID!) {
+  getRoomMembersDetails(roomId: $roomId) {
+    userId
+    preferredUsername
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetRoomMembersDetailsQueryVariables,
+  APITypes.GetRoomMembersDetailsQuery
+>;
+export const getUserRoomCount = /* GraphQL */ `query GetUserRoomCount {
+  getUserRoomCount
+}
+` as GeneratedQuery<
+  APITypes.GetUserRoomCountQueryVariables,
+  APITypes.GetUserRoomCountQuery
+>;
 export const getRoom = /* GraphQL */ `query GetRoom($id: ID!) {
   getRoom(id: $id) {
     id
