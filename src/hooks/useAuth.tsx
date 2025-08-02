@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 
 import { Amplify } from 'aws-amplify';
-import awsExports from '../aws-exports';
+
 import {signUp as SignUp, signIn as SignIn, confirmSignUp as ConfirmSignUp, resendSignUpCode, fetchAuthSession, getCurrentUser, signOut as SignOut, fetchUserAttributes} from '@aws-amplify/auth';
 
 interface User {
@@ -27,6 +27,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true); // Initial auth check loading
@@ -34,7 +35,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [error, setError] = useState<string | null>(null);
 	const [idToken, setIdToken] = useState<string | null>(null);
 
- 
+	const awsExports = {
+		"aws_project_region": import.meta.env.VITE_AWS_PROJECT_REGION,
+		"aws_cognito_region": import.meta.env.VITE_AWS_COGNITO_REGION,
+		"aws_user_pools_id": import.meta.env.VITE_AWS_USER_POOLS_ID,
+		"aws_user_pools_web_client_id": import.meta.env.VITE_AWS_USER_POOLS_WEB_CLIENT_ID,
+		"aws_appsync_graphqlEndpoint": import.meta.env.VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT,
+		"aws_appsync_region": import.meta.env.VITE_AWS_APPSYNC_REGION,
+		"aws_appsync_authenticationType": import.meta.env.VITE_AWS_APPSYNC_AUTHENTICATION_TYPE,
+		"aws_appsync_realtimeEndpoint": import.meta.env.VITE_AWS_APPSYNC_REALTIME_ENDPOINT,
+	};
 
 	useEffect(() =>{
 		Amplify.configure(awsExports);
