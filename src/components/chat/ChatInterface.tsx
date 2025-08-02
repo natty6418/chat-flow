@@ -10,13 +10,22 @@ import Message from "../../types/message";
 import { useQuery, useMutation, gql } from "@apollo/client";
 import { UserDetail } from '../../services/api';
 
-// @ts-expect-error - Amplify generated file doesn't have types
-import awsmobile from '../../aws-exports';
 // import { print } from "graphql";
 import * as queries from "../../graphql/queries";
 import * as mutations from "../../graphql/mutations";
 import * as subscriptions from "../../graphql/subscriptions";
 import { print } from "graphql";
+
+const awsmobile = {
+    "aws_project_region": import.meta.env.VITE_AWS_PROJECT_REGION,
+    "aws_cognito_region": import.meta.env.VITE_AWS_COGNITO_REGION,
+    "aws_user_pools_id": import.meta.env.VITE_AWS_USER_POOLS_ID,
+    "aws_user_pools_web_client_id": import.meta.env.VITE_AWS_USER_POOLS_WEB_CLIENT_ID,
+    "aws_appsync_graphqlEndpoint": import.meta.env.VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT,
+    "aws_appsync_region": import.meta.env.VITE_AWS_APPSYNC_REGION,
+    "aws_appsync_authenticationType": import.meta.env.VITE_AWS_APPSYNC_AUTHENTICATION_TYPE,
+    "aws_appsync_realtimeEndpoint": import.meta.env.VITE_AWS_APPSYNC_REALTIME_ENDPOINT,
+};
 
 // Component to display room members in a WhatsApp-style slide-out panel
 function ChatMembersPanel({ roomId, isOpen, onClose }: { roomId: string; isOpen: boolean; onClose: () => void }) {
@@ -222,9 +231,7 @@ export function ChatInterface({ room, onBackToRooms }: ChatInterfaceProps) {
 				).host;
 
 				// Create auth object with token or API key
-				const authorization = idToken
-					? { Authorization: `${idToken}`, host: HTTP_DOMAIN }
-					: { "x-api-key": awsmobile.aws_appsync_apiKey, host: HTTP_DOMAIN };
+				const authorization = { Authorization: `${idToken}`, host: HTTP_DOMAIN }
 
 				// const authorization = {
 				//   'x-api-key': awsConfig.API.GraphQL.apiKey,

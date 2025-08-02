@@ -34,9 +34,6 @@
   "Resources": {
     "LambdaFunction": {
       "Type": "AWS::Lambda::Function",
-      "DependsOn": [
-        "AmplifyResourcesPolicy"
-      ],
       "Metadata": {
         "aws:asset:path": "./src",
         "aws:asset:property": "Code"
@@ -185,9 +182,6 @@
       }
     },
     "lambdaexecutionpolicy": {
-      "DependsOn": [
-        "LambdaExecutionRole"
-      ],
       "Type": "AWS::IAM::Policy",
       "Properties": {
         "PolicyName": "lambda-execution-policy",

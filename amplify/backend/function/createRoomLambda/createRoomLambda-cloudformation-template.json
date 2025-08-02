@@ -34,9 +34,6 @@
   "Resources": {
     "LambdaFunction": {
       "Type": "AWS::Lambda::Function",
-      "DependsOn": [
-        "AmplifyResourcesPolicy"
-      ],
       "Metadata": {
         "aws:asset:path": "./src",
         "aws:asset:property": "Code"

@@ -6,10 +6,20 @@ import { ChatApp } from './components/chat/ChatApp';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { setContext } from '@apollo/client/link/context';
 import { ApolloClient, InMemoryCache, HttpLink, ApolloProvider } from '@apollo/client';
-// @ts-expect-error - Amplify generated file doesn't have types
-import awsmobile from './aws-exports';
 
-// --- Helper Components for Routing (No changes needed here) ---
+
+
+const awsmobile = {
+    "aws_project_region": import.meta.env.VITE_AWS_PROJECT_REGION,
+    "aws_cognito_region": import.meta.env.VITE_AWS_COGNITO_REGION,
+    "aws_user_pools_id": import.meta.env.VITE_AWS_USER_POOLS_ID,
+    "aws_user_pools_web_client_id": import.meta.env.VITE_AWS_USER_POOLS_WEB_CLIENT_ID,
+    "aws_appsync_graphqlEndpoint": import.meta.env.VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT,
+    "aws_appsync_region": import.meta.env.VITE_AWS_APPSYNC_REGION,
+    "aws_appsync_authenticationType": import.meta.env.VITE_AWS_APPSYNC_AUTHENTICATION_TYPE,
+    "aws_appsync_realtimeEndpoint": import.meta.env.VITE_AWS_APPSYNC_REALTIME_ENDPOINT,
+};
+
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -35,7 +45,6 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return user ? <Navigate to="/chat" replace /> : <>{children}</>;
 }
 
-// --- App Content and Routing (No changes needed here) ---
 
 function AppContent() {
   return (
@@ -74,8 +83,7 @@ function ApolloClientProvider({ children }: { children: React.ReactNode }) {
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
 
-// --- NEW: Component to Create Apollo Client Reactively ---
-// --- Main App Component (Updated Structure) ---
+
 
 function App() {
   return (
